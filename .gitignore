@@ -1,0 +1,32 @@
+# Node.js
+node_modules/
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+lib
+man
+doc
+tmp
+build
+dist
+
+# Local development directories
+.idea
+.vscode
+*.sublime-workspace
+*.sublime-project
+
+# Node.js-specific
+npm-debug.log
+*.npm
+*.lock
+node_modules
