@@ -11,5 +11,9 @@ router.get('/latest-assignment-employeeid', assignmentController.getLatestAssign
 router.get('/:employee_id', assignmentController.getAssignmentDetailsByEmployeeId);
 router.patch('/:id', assignmentController.updateAssignment);
 router.delete('/:id', assignmentController.deleteAssignment);
+router.get('/status/progress', assignmentController.getAssignmentStatus);
+router.patch('/:code/progress', assignmentController.progressAssignmentStatus);
+router.patch('/:code/complete', assignmentController.completeAssignmentStatus);
+
 
 module.exports = router;

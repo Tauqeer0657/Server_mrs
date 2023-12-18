@@ -8,9 +8,8 @@ const assignmentSchema = new mongoose.Schema({
     unique : true
   },
   employee_id : {
-    type : mongoose.Schema.Types.ObjectId,
-    ref : "Registration",
-    required : true,
+    type : String,
+    required : true
   },
   assignment: {
     type : String,
@@ -31,6 +30,12 @@ const assignmentSchema = new mongoose.Schema({
   deadline_date:  {
     type : Date,
     required : true
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'completed', 'progress'],
+    default: 'pending',
+    required: true,
   }
 });
 

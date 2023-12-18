@@ -1,67 +1,121 @@
-// controllers/userController.js
-const User = require('../models/userModel');
-const bcrypt = require('bcrypt');
-const auth = require('../middleware/auth');
+// // controllers/userController.js
+// const User = require('../models/userModel');
+// const bcrypt = require('bcrypt');
+// const auth = require('../middleware/auth');
 
-const loginUser = async (req, res) => {
-  try {
-    const employee_id = req.body.employee_id;
-    const password = req.body.password;
+// const loginUser = async (req, res) => {
+//   try {
+//     console.log("hi");
+//     const employee_id = req.body.employee_id;
+//     const password = req.body.password;
+//     console.log(employee_id);
 
-    const userId = await User.findOne({ employee_id: employee_id });
-    if (!userId) {
-      return res.status(400).send("Invalid Email");
-    }
+//     const userId = await User.findOne({ employee_id: employee_id });
+//     if (!userId) {
+//       return res.status(400).send("Invalid Email");
+//     }
 
-    const isMatch = await bcrypt.compare(password, userId.password);
+//     const isMatch = await bcrypt.compare(password, userId.password);
+//     console.log(isMatch);
+//     const token = await userId.generateAuthToken();
+//     console.log("the token part of login is " + token);
 
-    const token = await userId.generateAuthToken();
-    console.log("the token part of login is " + token);
-
-    res.cookie("jwt", token, {
-      expires: new Date(Date.now() + 50000),
-      httpOnly: true
-    });
+//     res.cookie("jwt", token, {
+//       expires: new Date(Date.now() + 50000),
+//       httpOnly: true
+//     });
 
     
 
-    if (isMatch && userId.role === "user") {
-        // Include user data and role in the response for the user role
-        const userData = {
-            userId: userId.id,
-            username: userId.username,
-            email: userId.email,
-            first_name: userId.first_name,
-            last_name: userId.last_name,
-            role: userId.role,  // Include the role in the user data
-            // Add more user-specific data as needed
-        };
-        res.status(201).send({
-            message: "You are in user panel",
-            data: userData
-        });
-    } else if (isMatch && userId.role === "admin") {
-        // Include admin data and role in the response for the admin role
-        const adminData = {
-            adminId: userId.id,
-            adminName: userId.username,
-            adminEmail: userId.email,
-            role: userId.role,  // Include the role in the admin data
-            first_name: userId.first_name,
-            last_name: userId.last_name,
-        };
-        res.status(201).send({
-            message: "You are in admin panel",
-            data: adminData
-        });
-    } else {
-        res.status(400).send("Error");
-    }
-  } catch (error) {
-    res.status(500).send(error);
-  }
-};
+//     if (isMatch && userId.role === "user") {
+//         // Include user data and role in the response for the user role
+//         const userData = {
+//             userId: userId.id,
+//             username: userId.username,
+//             email: userId.email,
+//             first_name: userId.first_name,
+//             last_name: userId.last_name,
+//             role: userId.role,  // Include the role in the user data
+//             // Add more user-specific data as needed
+//         };
+//         res.status(201).send({
+//             message: "You are in user panel",
+//             data: userData
+//         });
+//     } else if (isMatch && userId.role === "admin") {
+//         // Include admin data and role in the response for the admin role
+//         const adminData = {
+//             adminId: userId.id,
+//             adminName: userId.username,
+//             adminEmail: userId.email,
+//             role: userId.role,  // Include the role in the admin data
+//             first_name: userId.first_name,
+//             last_name: userId.last_name,
+//         };
+//         res.status(201).send({
+//             message: "You are in admin panel",
+//             data: adminData
+//         });
+//     } else {
+//         res.status(400).send("Error");
+//     }
+//   } catch (error) {
+//     res.status(500).send(error);
+//   }
+// };
 
+
+
+
+
+
+
+
+
+
+// controllers/userController.js
+const User = require('../models/userModel');
+const bcrypt = require('bcrypt');
+
+const jwt = require('jsonwebtoken');
+
+// const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
+
+
+const SECRET_KEY = 'miteshpradhanArkaJainUniversity';
+
+const loginUser = async (req, res) => {
+  try {
+    const { employee_id, password } = req.body;
+    const user = await User.findOne({ employee_id });
+
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign({ employee_id: employee_id, role: user.role }, SECRET_KEY, {
+      expiresIn: '1h',
+    });
+
+    res.cookie('token', token, { httpOnly: true });
+
+    res.json({
+      message: 'Login successful',
+      user: {
+        user: user._id,
+        employee_id: user.employee_id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        role: user.role,
+      },
+      token,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
 const registerUser = async (req, res) => {
   try {
     const password = req.body.password;

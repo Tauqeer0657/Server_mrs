@@ -91,3 +91,56 @@ exports.deleteAssignment = async (req, res) => {
     res.status(500).send(error);
   }
 };
+exports.progressAssignmentStatus = async (req, res) => {
+  const code = req.params.code;
+
+  try {
+    const assignment = await Assignment.findOne({ code: code });
+
+    if (!assignment) {
+      return res.status(404).json({ error: 'Assignment not found' });
+    }
+
+    // Validate the progress value further if needed
+    // Add business logic validation here...
+
+    assignment.status = "progress";
+    await assignment.save();
+
+    res.status(200).json(assignment);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+exports.completeAssignmentStatus = async (req, res) => {
+  const code = req.params.code;
+
+
+  try {
+    const assignment = await Assignment.findOne({ code: code });
+
+    if (!assignment) {
+      return res.status(404).send({ error: 'Assignment not found' });
+    }
+
+    assignment.status = 'completed'; // Assuming 'completed' corresponds to 'status'
+    await assignment.save();
+
+    res.status(200).json(assignment);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: 'Internal Server Error' });
+  }
+};
+
+
+exports.getAssignmentStatus = async (req, res) => {
+  try {
+    const status = await Assignment.find({ status: "progress" });
+    res.json(status);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
